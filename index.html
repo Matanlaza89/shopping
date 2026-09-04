@@ -333,7 +333,8 @@ function viewSetup(){
  h+=`<div class="card"><label class="f">מילון ראשי משותף</label>
   <input id="durl" placeholder="https://raw.githubusercontent.com/..." value="${esc(db.dictUrl||'')}">
   <div class="muted" style="margin-top:6px">כתובת לקובץ <span dir="ltr">dictionary.json</span>. הסנכרון מוסיף מוצרים חסרים ומעדכן את סדר הקטגוריות. לא מוחק כלום.</div>
-  <div class="row" style="margin-top:10px"><button class="primary grow" id="dsync">סנכרן מהמילון הראשי</button><button id="dexp">ייצוא מילון</button></div></div>
+  <div class="row" style="margin-top:10px"><button class="primary grow" id="dsync">סנכרן מהמילון הראשי</button><button id="dexp">ייצוא מילון</button></div>
+  <div class="row" style="margin-top:8px"><button class="danger grow" id="dreset">אפס מכשיר וטען מהמילון הראשי</button></div></div>
   <div class="card"><div class="muted">כל שינוי נשמר מיד במכשיר. הייצוא נועד להעברה בין מכשירים ולעדכון המילון הראשי — לא לשמירה.</div>
   <div class="muted" style="margin-top:6px">${db.products.length} מוצרים · ${db.cats.length} קטגוריות${db.syncedAt?' · סונכרן '+new Date(db.syncedAt).toLocaleDateString('he-IL'):''}</div>
   <div class="row" style="margin-top:10px"><button id="exp" class="grow">ייצוא גיבוי</button><button id="imp" class="grow">שחזור גיבוי</button></div></div>`;
@@ -488,6 +489,10 @@ function render(){
   document.getElementById('dexp').onclick=()=>{
    copyBox('ייצוא מילון',dictText(),'dictionary.json','שורה אחת לכל מוצר. העתק והדבק לתוך dictionary.json בגיטהאב.')};
   document.getElementById('dsync').onclick=()=>{db.dictUrl=du.value.trim();save();syncDict(db.dictUrl,false)};
+  document.getElementById('dreset').onclick=()=>{const u=du.value.trim();if(!u){toast('הזן קודם כתובת מילון');return}
+   ask('למחוק את כל הנתונים במכשיר הזה ולטעון מחדש מהמילון הראשי?',()=>{
+    db={cats:[],stores:[db.defStore||'יוחננוף'],defStore:db.defStore||'יוחננוף',products:[],list:{},done:{},miss:{},dictUrl:u};
+    save();syncDict(u,false)})};
   document.getElementById('exp').onclick=()=>copyBox('ייצוא גיבוי',JSON.stringify(db,null,1),'grocery-backup.json','גיבוי מלא. שמור בפתק או בקובץ.');
   document.getElementById('imp').onclick=()=>pasteBox('שחזור גיבוי','הדבק את הגיבוי המלא. הנתונים הנוכחיים יוחלפו.',d=>{
    if(!d||!Array.isArray(d.products)){toast('הגיבוי אינו תקין');return}db=d;db.done=db.done||{};db.miss=db.miss||{};save();render();toast('שוחזר')});
